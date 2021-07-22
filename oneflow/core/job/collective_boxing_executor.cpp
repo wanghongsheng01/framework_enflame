@@ -373,9 +373,10 @@ void NcclCollectiveBoxingExecutorBackend::ExecuteGroup(
         device_id2callbacks[device_id].reserve(group_size);
         device_id2callbacks[device_id].push_back(request_info.callback);
         if (op_type == OpType::kOpTypeAllReduce) {
-          OF_NCCL_CHECK(ncclAllReduce(send_buff, recv_buff, elem_cnt, nccl_data_type,
-                                      GetNcclReduceOp(op_desc.reduce_method()), comm,
-                                      device_ctx->stream));
+          //OF_NCCL_CHECK(ncclAllReduce(send_buff, recv_buff, elem_cnt, nccl_data_type,
+          //                            GetNcclReduceOp(op_desc.reduce_method()), comm,
+          //                            device_ctx->stream));
+          Memcpy<DeviceType::kGPU>(device_ctx, recv_buff, send_buff, elem_cnt * sizeof(float));
         } else if (op_type == OpType::kOpTypeAllGather) {
           CHECK_EQ(elem_cnt % num_ranks, 0);
           OF_NCCL_CHECK(ncclAllGather(send_buff, recv_buff, elem_cnt / num_ranks, nccl_data_type,
