@@ -338,7 +338,7 @@ void NcclCollectiveBoxingExecutorBackend::ExecuteGroup(
     for (auto& device_id7comm : device_id2comm) {
       OF_CUDA_CHECK(cudaSetDevice(device_id7comm.first));
       auto& device_ctx = device_id2device_ctx.at(device_id7comm.first);
-      OF_NCCL_CHECK(ncclAllReduce(device_ctx->fusion_buffer, device_ctx->fusion_buffer, elem_cnt,
+      OF_NCCL_CHECK(ncclAllReduce(device_ctx->fusion_buffer, device_ctx->fusion_buffer, 1,
                                   GetNcclDataType(group.front()->op_desc().data_type()),
                                   GetNcclReduceOp(group.front()->op_desc().reduce_method()),
                                   device_id7comm.second, device_ctx->stream));
@@ -373,7 +373,7 @@ void NcclCollectiveBoxingExecutorBackend::ExecuteGroup(
         device_id2callbacks[device_id].reserve(group_size);
         device_id2callbacks[device_id].push_back(request_info.callback);
         if (op_type == OpType::kOpTypeAllReduce) {
-          OF_NCCL_CHECK(ncclAllReduce(send_buff, recv_buff, elem_cnt, nccl_data_type,
+          OF_NCCL_CHECK(ncclAllReduce(send_buff, recv_buff, 1, nccl_data_type,
                                       GetNcclReduceOp(op_desc.reduce_method()), comm,
                                       device_ctx->stream));
         } else if (op_type == OpType::kOpTypeAllGather) {
